@@ -33,22 +33,23 @@ import javax.swing.JLabel;
  */
 public class NewJFrame extends javax.swing.JFrame {
 
-    private int map[][];
-    private int rows;
-    private int cols;
-    private int result[][];
-    private int start;
-    private boolean canDraw;
-    private boolean pickObstacles;
-    private boolean pickStart;
-    private boolean hasSpanningTree;
+    private int map[][];//Lưu trữ thông tin về bản đồ
+    private int rows;//Số hàng
+    private int cols;//Số cột
+    private boolean canDraw; //Có thể chọn vật cản hay điểm bắt đầu hay không
+    private boolean pickObstacles;//Chế độ chọn vật cản
+    private boolean pickStart; //Chế độ chọn điểm bắt đầu
+    private int start; // Vị trí bắt đầu (Chưa chọn thì giá trị là -1)
+    private boolean hasSpanningTree; //Đã sinh cây bao phủ hay chưa
+    private boolean hasCoveringPath; //Đã tìm đường đi của robot hay chưa
     private SpanningTree st;
     int offsetTop;
     int offsetLeft;
+    int spaces;
     private JLabel startLabel;
-    private ImageIcon squareImage;
-    private ImageIcon obstacleImage;
-    private ImageIcon startImage;
+    private ImageIcon squareImage; //Hình ảnh cho ô vuông bình thường
+    private ImageIcon obstacleImage; //Hình ảnh cho ô vuông vật cản
+    private ImageIcon startImage; //Hình ảnh cho ô vuông là nơi bắt đầu
 
     /**
      * Creates new form NewJFrame
@@ -57,14 +58,16 @@ public class NewJFrame extends javax.swing.JFrame {
         initComponents();
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         canDraw = true;
-        hasSpanningTree = false;
         pickObstacles = false;
         pickStart = false;
+        hasSpanningTree = false;
+        hasCoveringPath = false;
         start = -1;
         cols = 0;
         rows = 0;
         map = null;
         st = null;
+
         BufferedImage img = null;
         try {
             img = ImageIO.read(new File("images/square.png"));
@@ -103,6 +106,10 @@ public class NewJFrame extends javax.swing.JFrame {
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
+        totalSquares = new javax.swing.JLabel();
+        normalSquare = new javax.swing.JLabel();
+        obstacleSquares = new javax.swing.JLabel();
+        process = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
@@ -117,7 +124,7 @@ public class NewJFrame extends javax.swing.JFrame {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 258, Short.MAX_VALUE)
+            .addGap(0, 434, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -180,16 +187,46 @@ public class NewJFrame extends javax.swing.JFrame {
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Information", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
 
+        totalSquares.setText("Tổng số ô: 0");
+
+        normalSquare.setText("Số ô thường: 0");
+
+        obstacleSquares.setText("Số vật cản: 0");
+
+        process.setFont(new java.awt.Font("Gill Sans Ultra Bold Condensed", 1, 11)); // NOI18N
+        process.setForeground(new java.awt.Color(255, 102, 102));
+        process.setText(" ");
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(totalSquares)
+                    .addComponent(normalSquare)
+                    .addComponent(obstacleSquares)
+                    .addComponent(process))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        jPanel2Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {normalSquare, obstacleSquares, totalSquares});
+
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 63, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addComponent(totalSquares)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(normalSquare)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(obstacleSquares)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(process)
+                .addContainerGap(31, Short.MAX_VALUE))
         );
+
+        jPanel2Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {normalSquare, obstacleSquares, totalSquares});
 
         jMenu1.setText("File");
         jMenuBar1.add(jMenu1);
@@ -278,6 +315,9 @@ public class NewJFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_colFieldActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        /**
+         * Thiết lập các trạng thái về mặc định
+         */
         map = null;
         canDraw = true;
         pickObstacles = false;
@@ -287,21 +327,27 @@ public class NewJFrame extends javax.swing.JFrame {
         cols = 0;
         st = null;
         hasSpanningTree = false;
+        hasCoveringPath = false;
         jButton5.setBackground(new Color(240, 240, 240));
         jButton4.setBackground(new Color(240, 240, 240));
-
         jPanel1.removeAll();
+
+        //Lấy số hàng số cột từ người dùng
         String x = colField.getText().trim();
         String y = rowField.getText().trim();
 
-        if (Ultilities.isInteger(x) && Ultilities.isInteger(y)) {
+        if (Ultilities.isInteger(x) && Ultilities.isInteger(y)) { //Kiểm tra xem đúng định dạng số hay không
             colField.setBackground(new Color(255, 255, 255));
             rowField.setBackground(new Color(255, 255, 255));
 
             rows = Integer.parseInt(x);
             cols = Integer.parseInt(y);
             map = new int[rows][cols];
-
+            spaces = rows * cols;
+            totalSquares.setText("Tổng số ô: " + spaces);
+            normalSquare.setText("Số ô thường: " + spaces);
+            obstacleSquares.setText("Số vật cản: 0");
+            process.setText("");
             Dimension panelSize = jPanel1.getSize();
             offsetLeft = Contants.paddingLeft;
             offsetTop = Contants.paddingTop;
@@ -336,10 +382,15 @@ public class NewJFrame extends javax.swing.JFrame {
                                         if (map[i][j] == 2) {
                                             map[i][j] = 0;
                                             jLabelObject.setIcon(squareImage);
+                                            spaces++;
+                                            normalSquare.setText("Số ô thường: " + spaces);
+                                            obstacleSquares.setText("Số vật cản: " + (rows * cols - spaces));
                                         } else {
-
                                             map[i][j] = 2;
                                             jLabelObject.setIcon(obstacleImage);
+                                            spaces--;
+                                            normalSquare.setText("Số ô thường: " + spaces);
+                                            obstacleSquares.setText("Số vật cản: " + (rows * cols - spaces));
                                         }
                                     }
                                 } else if (pickStart) {
@@ -438,29 +489,45 @@ public class NewJFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        if (hasSpanningTree) {
-            int[][] mapX4 = Ultilities.subdivide(map, st.getOrder());
-            CoveringPath cp = new CoveringPath(mapX4, start);
-            cp.findWay();
-            ArrayList<Node> path = cp.getPath();
-            Graphics g = jPanel1.getGraphics();
-            Graphics2D g2 = (Graphics2D) g;
-            g2.setStroke(new BasicStroke(5));
-            g2.setColor(new Color(22, 160, 133));
-            for (int i = 0; i < path.size() - 1; i++) {
-                Node start = path.get(i);
-                Node end = path.get(i + 1);
-                int x1 = offsetLeft + start.getJ() * (Contants.squareSize / 2) + Contants.squareSize / 4;
-                int y1 = offsetTop + start.getI() * (Contants.squareSize / 2) + Contants.squareSize / 4;
-                int x2 = offsetLeft + end.getJ() * (Contants.squareSize / 2) + Contants.squareSize / 4;
-                int y2 = offsetTop + end.getI() * (Contants.squareSize / 2) + Contants.squareSize / 4;
-                g2.drawLine(x1, y1, x2, y2);
-                try {
-                    Thread.sleep(50);                 //1000 milliseconds is one second.
-                } catch (InterruptedException ex) {
-                    Thread.currentThread().interrupt();
+        if (hasSpanningTree && !hasCoveringPath) {
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    int[][] mapX4 = Ultilities.subdivide(map, st.getOrder());
+                    CoveringPath cp = new CoveringPath(mapX4, start);
+                    cp.findWay();
+                    ArrayList<Node> path = cp.getPath();
+                    Graphics g = jPanel1.getGraphics();
+                    Graphics2D g2 = (Graphics2D) g;
+                    g2.setStroke(new BasicStroke(5));
+                    g2.setColor(new Color(22, 160, 133));
+                    for (int i = 0; i < path.size() - 1; i++) {
+                        if(i%45 == 0){
+                            process.setText("Đang quét .");
+                        }else if(i%45 == 15){
+                            process.setText("Đang quét ..");
+                        }else if(i%45 == 30){
+                            process.setText("Đang quét ...");
+                        }
+                        Node start = path.get(i);
+                        Node end = path.get(i + 1);
+                        int x1 = offsetLeft + start.getJ() * (Contants.squareSize / 2) + Contants.squareSize / 4;
+                        int y1 = offsetTop + start.getI() * (Contants.squareSize / 2) + Contants.squareSize / 4;
+                        int x2 = offsetLeft + end.getJ() * (Contants.squareSize / 2) + Contants.squareSize / 4;
+                        int y2 = offsetTop + end.getI() * (Contants.squareSize / 2) + Contants.squareSize / 4;
+                        g2.drawLine(x1, y1, x2, y2);
+                        try {
+                            Thread.sleep(30); //1000 milliseconds is one second.
+                        } catch (InterruptedException ex) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                    hasCoveringPath = true;
+                    process.setText("Đã xong");
                 }
-            }
+            });
+            t.start();
+
         } else {
             System.out.println("Something wrong!");
         }
@@ -516,6 +583,10 @@ public class NewJFrame extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JLabel normalSquare;
+    private javax.swing.JLabel obstacleSquares;
+    private javax.swing.JLabel process;
     private javax.swing.JTextField rowField;
+    private javax.swing.JLabel totalSquares;
     // End of variables declaration//GEN-END:variables
 }

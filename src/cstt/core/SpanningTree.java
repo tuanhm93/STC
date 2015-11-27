@@ -12,15 +12,13 @@ import java.util.ArrayList;
  * @author Tuan
  */
 public class SpanningTree {
-    private ArrayList<Node> order;
-    private int[][] map;
-    private int start;
-    private int rows;
-    private int cols;
-    private int startX;
-    private int startY;
-    private int spaces;
-    private int obstacles;
+    private ArrayList<Node> order;//Lưu trữ thứ tự duyệt theo thuật toán DFS
+    private int[][] map;//Lưu thông tin về bản đồ
+    private int start;//Điểm bắt đầu
+    private int rows;//Số hàng
+    private int cols;//Số cột
+    private int startX;//Chỉ số hàng của điểm bắt đầu
+    private int startY;//Chỉ số cột của điểm bắt đầu
     
     public SpanningTree(int[][] map, int start){
         this.map = map;
@@ -30,15 +28,6 @@ public class SpanningTree {
         this.cols = map[0].length;
         this.startX = start/cols;
         this.startY = start%cols;
-        spaces = 0;
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols ; j++) {
-                if(map[i][j] == 0){
-                    spaces++;
-                }
-            }
-        }
-        obstacles = rows*cols - spaces;
     }
     
     public void DFS(Node node){
@@ -122,21 +111,4 @@ public class SpanningTree {
     public void setStartY(int startY) {
         this.startY = startY;
     }
-
-    public int getSpaces() {
-        return spaces;
-    }
-
-    public void setSpaces(int spaces) {
-        this.spaces = spaces;
-    }
-
-    public int getObstacles() {
-        return obstacles;
-    }
-
-    public void setObstacles(int obstacles) {
-        this.obstacles = obstacles;
-    }
-
 }

@@ -10,9 +10,9 @@ package cstt.core;
  * @author Tuan
  */
 public class Node {
-    private int i;
-    private int j;
-    private Node parent;
+    private int i;//Chỉ số hàng
+    private int j;//Chỉ số cột
+    private Node parent;//Nút cha đi tới nó
 
     public Node(int i, int j, Node parent) {
         this.i = i;

@@ -12,61 +12,20 @@ import java.util.ArrayList;
  * @author Tuan
  */
 public class CoveringPath {
-
-    private int[][] mapX4;
-    private int start;
-    private int startX;
-    private int startY;
-    private ArrayList<Node> path;
+    private int[][] mapX4;//Bản đồ nhỏ (Một ô vuông được chia thành 4)
+    private int start;//Điểm bắt đầu ở bản đồ lớn
+    private int startX;//Chỉ số hàng bắt đầu ở bản đồ nhỏ
+    private int startY;//Chỉ số cột bắt đầu ở bản đồ nhỏ
+    private ArrayList<Node> path;//Lưu trữ danh sách thứ tự đường đi của robot
 
     public CoveringPath(int[][] mapX4, int start) {
         this.mapX4 = mapX4;
         this.start = start;
         startX = (start / (mapX4[0].length / 2)) * 2;
         startY = (start % (mapX4[0].length / 2)) * 2;
-//        System.out.println(startX+" "+startY);
         path = new ArrayList<Node>();
-        
     }
-
-//    public void expand(Node node) {
-//        if ((node.getI() == startX && node.getJ() == startY)) {
-//            if (b) {
-//                return;
-//            } else {
-//                b = true;
-//            }
-//        }
-//        path.add(node);
-//        if (mapX4[node.getI()][node.getJ()] == 0) {
-//            if ((node.getI() % 2 == 0) && (node.getJ() % 2 == 0)) {
-//
-//                expand(new Node(node.getI() + 1, node.getJ(), null));
-//            } else if ((node.getI() % 2 == 0) && (node.getJ() % 2 != 0)) {
-//
-//                expand(new Node(node.getI(), node.getJ() - 1, null));
-//            } else if ((node.getI() % 2 != 0) && (node.getJ() % 2 == 0)) {
-//
-//                expand(new Node(node.getI(), node.getJ() + 1, null));
-//            } else if ((node.getI() % 2 != 0) && (node.getJ() % 2 != 0)) {
-//
-//                expand(new Node(node.getI() - 1, node.getJ(), null));
-//            }
-//        } else if (1 == (mapX4[node.getI()][node.getJ()] & 1)) {
-//
-//            expand(new Node(node.getI() - 1, node.getJ(), null));
-//        } else if (4 == (mapX4[node.getI()][node.getJ()] & 4)) {
-//
-//            expand(new Node(node.getI() + 1, node.getJ(), null));
-//        } else if (8 == (mapX4[node.getI()][node.getJ()] & 8)) {
-//
-//            expand(new Node(node.getI(), node.getJ() + 1, null));
-//        } else if (2 == (2 & mapX4[node.getI()][node.getJ()])) {
-//
-//            expand(new Node(node.getI(), node.getJ() - 1, null));
-//        }
-//    }
-
+    
     public void findWay() {
         int i = startX;
         int j = startY;
@@ -104,11 +63,6 @@ public class CoveringPath {
         } while ((i != startX) || (j != startY));
     }
 
-//    public void findWay(){
-//      
-//        
-//        expand(new Node(startX, startY, null));
-//    }
     public int[][] getMapX4() {
         return mapX4;
     }

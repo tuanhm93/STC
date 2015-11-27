@@ -25,6 +25,7 @@ public class Ultilities {
         return b;
     }
     
+    //Hàm sinh ra map nhỏ từ map lớn và danh sách duyệt
     public static int[][] subdivide(int[][] map, ArrayList<Node> order){
         int[][] mapX4 = null;
         int rows = map.length;
@@ -135,5 +136,4 @@ public class Ultilities {
         }
         return mapX4;
     }
-    
 }
